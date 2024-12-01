@@ -22,7 +22,7 @@ async function requestNotificationPermission() {
       console.log("Notification permission granted.");
 
       // Explicitly register the service worker
-      const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+      const registration = await navigator.serviceWorker.register('/test/firebase-messaging-sw.js');
       const token = await getToken(messaging, { serviceWorkerRegistration: registration });
 
       if (token) {
