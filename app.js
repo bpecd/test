@@ -15,21 +15,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const messaging = getMessaging(app);
 
-// Request notification permission and get token
 async function requestNotificationPermission() {
   try {
     const permission = await Notification.requestPermission();
     if (permission === "granted") {
       console.log("Notification permission granted.");
-      const token = await getToken(messaging);
+
+      // Explicitly register the service worker
+      const registration = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+      const token = await getToken(messaging, { serviceWorkerRegistration: registration });
+
       if (token) {
-        console.log("User FCM Token:", token);
+        console.log("FCM Token:", token);
         alert(`Your FCM Token: ${token}`);
       } else {
-        console.warn("No token received. Make sure Firebase is set up correctly.");
+        console.warn("No token received. Ensure Firebase is properly set up.");
       }
     } else {
-      console.error("Permission not granted for notifications.");
+      console.error("Notification permission denied.");
     }
   } catch (err) {
     console.error("Error requesting permission:", err);
@@ -39,8 +42,7 @@ async function requestNotificationPermission() {
 // Listen for incoming messages
 onMessage(messaging, (payload) => {
   console.log("Message received: ", payload);
-  alert(`Notification Received: ${payload.notification.title}`);
+  alert(`Notification: ${payload.notification.title}`);
 });
 
-// Add a listener to the button
 document.getElementById("getTokenButton").addEventListener("click", requestNotificationPermission);
